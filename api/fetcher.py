@@ -57,8 +57,8 @@ async def store_pages():
     deleted_pids = []
     for hole in all_values:
         current_pid = hole["pid"]
-        if current_pid - previous_pid > 1:
-            deleted_pids.extend(range(previous_pid + 1, current_pid))
+        if previous_pid - current_pid > 1:
+            deleted_pids.extend(range(current_pid + 1, previous_pid))
         previous_pid = current_pid
 
     # Update deleted_at field of deleted_pids if they haven't been marked
@@ -75,4 +75,5 @@ async def store_pages():
     newly_deleted = await database.fetch_all(
         holes.select().where(holes.c.deleted_at == deleted_at)
     )
+    newly_deleted = [dict(h) for h in newly_deleted]
     return newly_deleted
