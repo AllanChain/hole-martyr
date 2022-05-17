@@ -65,7 +65,13 @@ onBeforeUnmount(() => {
   <div>{{ capturedDeletions.length }}</div>
   <div>
     <div v-for="hole of capturedDeletions" :key="hole.pid">
-      [{{ hole.pid }}] {{ hole.text ?? 'Null' }}
+      [{{ hole.pid }}]
+      <p v-if="hole.text">
+        {{ hole.text }}
+      </p>
+      <p v-else>
+        <b>Content Uncaught</b>
+      </p>
       <div v-if="hole.image">
         <a :href="`https://pkuhelper.pku.edu.cn/services/pkuhole/images/${hole.image}`">Image</a>
       </div>
