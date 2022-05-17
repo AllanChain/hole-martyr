@@ -1,21 +1,74 @@
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { format as formatDate } from 'light-date'
+
+interface Hole {
+  pid: number
+  text: string
+  image?: string
+}
+
+const nextScan = ref<number>(0)
+const currentTime = ref<number>(new Date().getTime())
+const nextScanDate = computed(() =>
+  formatDate(new Date(nextScan.value), '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}'),
+)
+const timeToNextScan = computed(() =>
+  Math.floor((nextScan.value - currentTime.value) / 1000),
+)
+const capturedDeletions = ref<Hole[]>([])
+let evtSource: EventSource
+let timerHandle: number
+
+onMounted(() => {
+  if (evtSource) { return }
+  evtSource = new EventSource('/api/stream')
+  evtSource.addEventListener('scandone', (event) => {
+    nextScan.value = JSON.parse(event.data).next * 1000
+  })
+  evtSource.addEventListener('deletion', (event) => {
+    capturedDeletions.value.unshift(JSON.parse(event.data).hole)
+  })
+  evtSource.addEventListener('fetcherror', (event) => {
+    console.log(event.data)
+  })
+  window.addEventListener('beforeunload', () => {
+    evtSource.close()
+  })
+})
+onMounted(async () => {
+  const resp = await fetch('/api/next')
+  const data = await resp.json()
+  nextScan.value = data.next * 1000
+})
+onMounted(async () => {
+  const resp = await fetch('/api/recent-deletions')
+  const data = await resp.json()
+  capturedDeletions.value = data
+})
+onMounted(() => {
+  if (timerHandle) { return }
+  timerHandle = setInterval(() => {
+    currentTime.value = new Date().getTime()
+  }, 1000)
+})
+onBeforeUnmount(() => {
+  console.log('Before unmount is called!')
+  clearInterval(timerHandle)
+  evtSource.close()
+})
 </script>
 
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
+  <div>Next scan is scheduled at {{ nextScanDate }}</div>
+  <div>{{ timeToNextScan }} s</div>
+  <div>{{ capturedDeletions.length }}</div>
+  <div>
+    <div v-for="hole of capturedDeletions" :key="hole.pid">
+      [{{ hole.pid }}] {{ hole.text ?? 'Null' }}
+      <div v-if="hole.image">
+        <a :href="`https://pkuhelper.pku.edu.cn/services/pkuhole/images/${hole.image}`">Image</a>
+      </div>
+    </div>
+  </div>
 </template>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

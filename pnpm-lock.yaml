@@ -4,21 +4,21 @@ specifiers:
   '@antfu/eslint-config': ^0.23.1
   '@vitejs/plugin-vue': ^2.3.3
   concurrently: ^7.2.0
-  cross-env: ^7.0.3
   eslint: ^8.15.0
+  light-date: ^1.2.0
   typescript: ^4.5.4
   vite: ^2.9.9
   vue: ^3.2.25
   vue-tsc: ^0.34.7
 
 dependencies:
+  light-date: 1.2.0
   vue: 3.2.33
 
 devDependencies:
   '@antfu/eslint-config': 0.23.1_hcfsmds2fshutdssjqluwm76uu
   '@vitejs/plugin-vue': 2.3.3_vite@2.9.9+vue@3.2.33
   concurrently: 7.2.0
-  cross-env: 7.0.3
   eslint: 8.15.0
   typescript: 4.6.4
   vite: 2.9.9
@@ -693,14 +693,6 @@ packages:
       supports-color: 8.1.1
       tree-kill: 1.2.2
       yargs: 17.5.0
-    dev: true
-
-  /cross-env/7.0.3:
-    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
-    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
-    hasBin: true
-    dependencies:
-      cross-spawn: 7.0.3
     dev: true
 
   /cross-spawn/7.0.3:
@@ -1925,6 +1917,11 @@ packages:
       prelude-ls: 1.2.1
       type-check: 0.4.0
     dev: true
+
+  /light-date/1.2.0:
+    resolution: {integrity: sha512-fdndhOogZm9m/XeAmP+UDgvplEd3SEfFoS3ObI6xhLmNyX3VdT+Ss8mddvP3XmVnh7I3t/Yg4OuFvWvYD+YBeA==}
+    engines: {node: '>=10'}
+    dev: false
 
   /lines-and-columns/1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
