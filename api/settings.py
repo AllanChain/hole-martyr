@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     scan_page: int = 4
     initial_delay: int = 10
     initial_interval: int = 30
-    max_interval: int = 1200
+    max_interval: int = 120
     min_interval: int = 10
 
     class Config:

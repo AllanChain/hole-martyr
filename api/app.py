@@ -3,13 +3,14 @@ import json
 import random
 import time
 
+import httpx
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
 from api.fetcher import store_pages
 
-from .database import database, engine, metadata
+from .database import database, engine, holes, metadata
 from .message import MessageAnnouncer
 from .settings import settings
 
@@ -46,11 +47,20 @@ async def bg_task() -> None:
             announcer.announce({"event": "scanstart"})
             try:
                 newly_deleted = await store_pages()
+            except httpx.ConnectTimeout:
+                announcer.announce({"event": "fetcherror", "data": "timeout"})
+                await asyncio.sleep(1)
+                continue
+            except asyncio.CancelledError:
+                pass
             except:
                 import traceback
 
-                announcer.announce({"event": "error", "data": traceback.format_exc()})
+                announcer.announce(
+                    {"event": "fetcherror", "data": traceback.format_exc()}
+                )
                 traceback.print_exc()
+                await asyncio.sleep(1)
                 continue
 
             uncaught_deletion = 0
@@ -101,3 +111,11 @@ class NextResponse(BaseModel):
 @app.get("/next", response_model=NextResponse)
 async def next_scan():
     return {"next": schedule_next}
+
+
+@app.get("/recent-deletions")
+async def recent_deletions():
+    deletions = await database.fetch_all(
+        holes.select().order_by(holes.c.deleted_at.desc()).limit(10)
+    )
+    return [dict(d) for d in deletions]
