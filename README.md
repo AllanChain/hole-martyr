@@ -10,7 +10,7 @@ This license of this program is based on 3-Clause BSD License, but with an addit
 
 ## Usage Instruction
 
-This program **not designed to run 24-7**. It's designed to grab information when there is a lot of deletions. You have the right of knowing what's going on.
+This program is **not designed to run 24-7**. It's designed to grab information when there is a lot of deletions and you want to know what's going on.
 
 Since it's only made for personal use, no production setup is required. To start this program, just run:
 
@@ -28,4 +28,4 @@ pnpm serve
 
 You need to have the above package managers installed.
 
-The SQLite database is not suitable for a large amount of data. As a consequence, you should delete the `data.db` regularly.
+The SQLite database is not suitable for a large amount of data. As a consequence, you should **delete the `data.db` regularly**.
