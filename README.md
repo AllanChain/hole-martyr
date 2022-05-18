@@ -1,16 +1,25 @@
-# Vue 3 + TypeScript + Vite
+# Hole Martyr Hunter
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A simple program to find martyrs and their deeds in PKUHole.
 
-## Recommended IDE Setup
+## License and Conditions
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+This license of this program is based on 3-Clause BSD License, but with an additional clause:
 
-## Type Support For `.vue` Imports in TS
+4. The usage is limited. You can only use it personally and cannot deploy it to a server which is publicly available. You cannot advocate this program in any social media which the organization making deletion in PKUHole is in control of. You cannot post the contents it obtains publicly.
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
+## Usage Instruction
 
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
+This program **not designed to run 24-7**. It's designed to grab information when there is a lot of deletions. You have the right of knowing what's going on.
 
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+Since it's only made for personal use, no production setup is required. To start this program, just run:
+
+```sh
+poetry install
+pnpm install
+pnpm dev
+```
+
+You need to have the above package managers installed.
+
+The SQLite database is not suitable for a large amount of data. As a consequence, you should delete the `data.db` regularly.
