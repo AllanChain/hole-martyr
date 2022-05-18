@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently -n Vite,FastAPI -c magenta,green \"vite\" \"poetry run uvicorn api:app --reload\"",
     "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "serve": "poetry run uvicorn api:app"
   },
   "dependencies": {
     "light-date": "^1.2.0",

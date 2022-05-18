@@ -1,11 +1,13 @@
 import asyncio
 import json
+import os
 import random
 import time
 
 import httpx
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
@@ -19,7 +21,6 @@ app = FastAPI()
 announcer = MessageAnnouncer()
 
 allowed_origin = "http://localhost:3000"
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[allowed_origin],
@@ -29,6 +30,7 @@ app.add_middleware(
 )
 
 metadata.create_all(engine)
+
 
 schedule_next = time.time() + settings.initial_delay
 
@@ -41,11 +43,6 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await database.disconnect()
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
 
 @app.on_event("startup")
@@ -139,6 +136,13 @@ async def next_scan():
 @app.get("/recent-deletions")
 async def recent_deletions():
     deletions = await database.fetch_all(
-        holes.select().order_by(holes.c.deleted_at.desc()).limit(10)
+        holes.select()
+        .where(holes.c.deleted_at != None)
+        .order_by(holes.c.pid.desc())
+        .limit(10)
     )
     return [dict(d) for d in deletions]
+
+
+if os.path.exists("dist"):
+    app.mount("/", StaticFiles(directory="dist", html=True), name="static")

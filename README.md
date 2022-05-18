@@ -17,7 +17,13 @@ Since it's only made for personal use, no production setup is required. To start
 ```sh
 poetry install
 pnpm install
+
+# If want live reloading
 pnpm dev
+# Else
+pnpm build
+pnpm serve
+# End if
 ```
 
 You need to have the above package managers installed.
