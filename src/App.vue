@@ -22,7 +22,7 @@ let timerHandle: number
 
 onMounted(() => {
   if (evtSource) { return }
-  evtSource = new EventSource('/api/stream')
+  evtSource = new EventSource('http://localhost:8000/stream')
   evtSource.addEventListener('scandone', (event) => {
     nextScan.value = JSON.parse(event.data).next * 1000
   })
@@ -37,12 +37,12 @@ onMounted(() => {
   })
 })
 onMounted(async () => {
-  const resp = await fetch('/api/next')
+  const resp = await fetch('http://localhost:8000/next')
   const data = await resp.json()
   nextScan.value = data.next * 1000
 })
 onMounted(async () => {
-  const resp = await fetch('/api/recent-deletions')
+  const resp = await fetch('http://localhost:8000/recent-deletions')
   const data = await resp.json()
   capturedDeletions.value = data
 })

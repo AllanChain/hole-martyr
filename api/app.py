@@ -5,6 +5,7 @@ import time
 
 import httpx
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
@@ -16,6 +17,16 @@ from .settings import settings
 
 app = FastAPI()
 announcer = MessageAnnouncer()
+
+allowed_origin = "http://localhost:3000"
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[allowed_origin],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 metadata.create_all(engine)
 
@@ -91,7 +102,12 @@ async def sse(request: Request):
     async def event_source():
         messages = announcer.listen()
         try:
-            while not await request.is_disconnected():
+            while True:
+                disconnected = await request.is_disconnected()
+                print(disconnected, flush=True)
+                if disconnected:
+                    print("Disconnecting", flush=True)
+                    break
                 msg = await messages.get()
                 print(msg, flush=True)
                 yield ServerSentEvent(
@@ -101,7 +117,14 @@ async def sse(request: Request):
         except asyncio.CancelledError:
             print("Cancelled", flush=True)
 
-    return EventSourceResponse(event_source())
+    return EventSourceResponse(
+        event_source(),
+        headers={
+            "Access-Control-Allow-Origin": allowed_origin,
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
 
 class NextResponse(BaseModel):
