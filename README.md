@@ -12,7 +12,15 @@ This license of this program is based on 3-Clause BSD License, but with an addit
 
 This program is **not designed to run 24-7**. It's designed to grab information when there is a lot of deletions and you want to know what's going on.
 
-Since it's only made for personal use, no production setup is required. To start this program, just run:
+Since it's only made for personal use, no production setup is required.
+
+First, create `.env` file:
+
+```
+USER_TOKEN=<YOUR TOKEN>
+```
+
+Then, to start this program, just run:
 
 ```sh
 poetry install
