@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { format as formatDate } from 'light-date'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { formatTime } from '../utils'
 
 const props = defineProps<{
   time: number
@@ -9,9 +9,7 @@ const props = defineProps<{
 let timerHandle: number
 
 const currentTime = ref<number>(new Date().getTime())
-const nextScanDate = computed(() =>
-  formatDate(new Date(props.time), '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}'),
-)
+const nextScanDate = computed(() => formatTime(props.time))
 const timeToNextScan = computed(() =>
   Math.floor((props.time - currentTime.value) / 1000),
 )
