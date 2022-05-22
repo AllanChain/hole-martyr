@@ -8,10 +8,21 @@ defineProps<{
 
 <template>
   <div class="bg-blue-200 p-2 my-2 rounded-lg shadow-md">
-    <div class="text-red-900">
-      [{{ hole.pid }}]
+    <div class="flex items-center">
+      <div class="text-red-900">
+        [{{ hole.pid }}]
+      </div>
+      <div class="flex-1" />
+      <div class="ml-2">
+        {{ hole.reply_count }}
+      </div>
+      <div class="i-carbon-chat" />
+      <div class="ml-2">
+        {{ hole.like_count }}
+      </div>
+      <div class="i-carbon-star" />
     </div>
-    <p v-if="hole.text">
+    <p v-if="hole.text || hole.image">
       {{ hole.text }}
     </p>
     <p v-else>

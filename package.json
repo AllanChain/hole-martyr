@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.23.1",
+    "@iconify-json/carbon": "^1.1.5",
     "@vitejs/plugin-vue": "^2.3.3",
     "concurrently": "^7.2.0",
     "eslint": "^8.15.0",
