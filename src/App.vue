@@ -12,6 +12,9 @@ let evtSource: EventSource
 onMounted(() => {
   if (evtSource) { return }
   evtSource = new EventSource(`${import.meta.env.VITE_API_ROOT}stream`)
+  evtSource.addEventListener('scanstart', () => {
+    nextScanTime.value = new Date().getTime()
+  })
   evtSource.addEventListener('scandone', (event) => {
     nextScanTime.value = JSON.parse(event.data).next * 1000
   })
