@@ -1,10 +1,15 @@
+import asyncio
+import json
 import time
 
 import httpx
+from loguru import logger
 from sqlalchemy.dialects.sqlite import insert
 
 from .database import database, holes
 from .settings import settings
+
+UA_STRING = "Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0"
 
 
 async def fetch_page(page: int):
@@ -20,20 +25,27 @@ async def fetch_page(page: int):
             },
             headers={
                 "Referer": "https://pkuhelper.pku.edu.cn/hole/",
-                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0",
+                "User-Agent": UA_STRING,
             },
         )
-        return [
-            {
-                "pid": int(hole["pid"]),
-                "text": hole["text"],
-                "created_at": int(hole["timestamp"]),
-                "like_count": int(hole["likenum"]),
-                "reply_count": int(hole["reply"]),
-                "image": hole["url"],
-            }
-            for hole in r.json()["data"]
-        ]
+        try:
+            return [
+                {
+                    "pid": int(hole["pid"]),
+                    "text": hole["text"],
+                    "created_at": int(hole["timestamp"]),
+                    "like_count": int(hole["likenum"]),
+                    "reply_count": int(hole["reply"]),
+                    "image": hole["url"],
+                }
+                for hole in r.json()["data"]
+            ]
+        except json.decoder.JSONDecodeError as e:
+            if "502" in r.text:  # Server is busy
+                await asyncio.sleep(1)
+                return await fetch_page(page)
+            logger.error("Cannot decode json: {}", r.text)
+            raise e from None
 
 
 async def store_pages():

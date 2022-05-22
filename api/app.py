@@ -2,18 +2,19 @@ import asyncio
 import json
 import os
 import random
+import sys
 import time
 
 import httpx
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from loguru import logger
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
-from api.fetcher import store_pages
-
 from .database import database, engine, holes, metadata
+from .fetcher import store_pages
 from .message import MessageAnnouncer
 from .settings import settings
 
@@ -30,6 +31,12 @@ app.add_middleware(
 )
 
 metadata.create_all(engine)
+logger.add(
+    sys.stderr,
+    colorize=True,
+    format="<lvl>{level:9}</lvl> <blue>{time:HH:mm:ss.SS}</blue> {message}",
+    level="INFO",
+)
 
 
 schedule_next = time.time() + settings.initial_delay
@@ -38,6 +45,7 @@ schedule_next = time.time() + settings.initial_delay
 @app.on_event("startup")
 async def startup():
     await database.connect()
+    logger.info("App started")
 
 
 @app.on_event("shutdown")
@@ -87,7 +95,7 @@ async def bg_task() -> None:
             announcer.announce(
                 {"event": "scandone", "data": {"next": time.time() + interval}}
             )
-            print("Done scan", flush=True)
+            logger.debug("Done scan")
             schedule_next = time.time() + interval
             await asyncio.sleep(interval)
 
@@ -101,27 +109,19 @@ async def sse(request: Request):
         try:
             while True:
                 disconnected = await request.is_disconnected()
-                print(disconnected, flush=True)
                 if disconnected:
-                    print("Disconnecting", flush=True)
+                    logger.debug("Stream disconnecting")
                     break
                 msg = await messages.get()
-                print(msg, flush=True)
+                logger.info("Sending {}", str(msg))
                 yield ServerSentEvent(
                     json.dumps(msg.get("data")), event=msg.get("event")
                 )
-            print("Disconnected", flush=True)
+            logger.debug("Stream disconnected")
         except asyncio.CancelledError:
-            print("Cancelled", flush=True)
+            logger.debug("Stream cancelled")
 
-    return EventSourceResponse(
-        event_source(),
-        headers={
-            "Access-Control-Allow-Origin": allowed_origin,
-            "Access-Control-Allow-Methods": "*",
-            "Access-Control-Allow-Headers": "*",
-        },
-    )
+    return EventSourceResponse(event_source())
 
 
 class NextResponse(BaseModel):
