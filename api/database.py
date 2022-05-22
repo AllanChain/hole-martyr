@@ -1,5 +1,6 @@
 import databases
 import sqlalchemy
+from sqlalchemy.orm import relationship
 
 from .settings import settings
 
@@ -15,6 +16,14 @@ holes = sqlalchemy.Table(
     sqlalchemy.Column("reply_count", sqlalchemy.Integer),
     sqlalchemy.Column("like_count", sqlalchemy.Integer),
     sqlalchemy.Column("image", sqlalchemy.String),
+)
+comments = sqlalchemy.Table(
+    "comments",
+    metadata,
+    sqlalchemy.Column("cid", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("pid", sqlalchemy.Integer, nullable=False),
+    sqlalchemy.Column("created_at", sqlalchemy.Integer, nullable=False),
+    sqlalchemy.Column("text", sqlalchemy.String, nullable=False),
 )
 engine = sqlalchemy.create_engine(
     settings.database_url, connect_args={"check_same_thread": False}

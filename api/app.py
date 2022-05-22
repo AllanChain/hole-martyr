@@ -13,7 +13,7 @@ from loguru import logger
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
-from .database import database, engine, holes, metadata
+from .database import comments, database, engine, holes, metadata
 from .fetcher import store_pages
 from .message import MessageAnnouncer
 from .settings import settings
@@ -87,7 +87,7 @@ async def bg_task() -> None:
 
             upper_gap = settings.max_interval - interval
             lower_gap = interval - settings.min_interval
-            if uncaught_deletion:
+            if uncaught_deletion or len(newly_deleted) > 3:
                 interval -= random.uniform(lower_gap / 5, lower_gap / 4)
             else:
                 interval += random.uniform(-lower_gap / 8, upper_gap / 6)
@@ -142,6 +142,12 @@ async def recent_deletions():
         .limit(10)
     )
     return [dict(d) for d in deletions]
+
+
+@app.get("/hole/{pid}/comments")
+async def hole_comments(pid: int):
+    replies = await database.fetch_all(comments.select().where(comments.c.pid == pid))
+    return [dict(c) for c in replies]
 
 
 if os.path.exists("dist"):

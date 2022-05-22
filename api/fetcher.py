@@ -4,29 +4,31 @@ import time
 
 import httpx
 from loguru import logger
+from sqlalchemy import func, select
 from sqlalchemy.dialects.sqlite import insert
 
-from .database import database, holes
+from .database import comments, database, holes
 from .settings import settings
 
+API_URL = "https://pkuhelper.pku.edu.cn/services/pkuhole/api.php"
 UA_STRING = "Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0"
+COMMON_PARAMS = {
+    "PKUHelperAPI": "3.0",
+    "jsapiver": "201027113050-459074",
+    "user_token": settings.user_token,
+}
+HEADERS = {
+    "Referer": "https://pkuhelper.pku.edu.cn/hole/",
+    "User-Agent": UA_STRING,
+}
 
 
 async def fetch_page(page: int):
     async with httpx.AsyncClient() as client:
         r = await client.get(
-            "https://pkuhelper.pku.edu.cn/services/pkuhole/api.php",
-            params={
-                "action": "getlist",
-                "p": page,
-                "PKUHelperAPI": "3.0",
-                "jsapiver": "201027113050-459074",
-                "user_token": settings.user_token,
-            },
-            headers={
-                "Referer": "https://pkuhelper.pku.edu.cn/hole/",
-                "User-Agent": UA_STRING,
-            },
+            API_URL,
+            params={"action": "getlist", "p": page, **COMMON_PARAMS},
+            headers=HEADERS,
         )
         try:
             return [
@@ -48,21 +50,70 @@ async def fetch_page(page: int):
             raise e from None
 
 
+async def fetch_comments(pid: int):
+    async with httpx.AsyncClient() as client:
+        r = await client.get(
+            API_URL,
+            params={"action": "getcomment", "pid": pid, **COMMON_PARAMS},
+            headers=HEADERS,
+        )
+        try:
+            return [
+                {
+                    "cid": int(comment["cid"]),
+                    "pid": int(comment["pid"]),
+                    "text": comment["text"],
+                    "created_at": int(comment["timestamp"]),
+                }
+                for comment in r.json()["data"]
+            ]
+        except json.decoder.JSONDecodeError as e:
+            if "502" in r.text:  # Server is busy
+                await asyncio.sleep(1)
+                return await fetch_comments(pid)
+            logger.error("Cannot decode json: {}", r.text)
+            raise e from None
+
+
 async def store_pages():
-    update_deleted_query = insert(holes)
-    update_deleted_query = update_deleted_query.on_conflict_do_update(
+    insert_query = insert(holes)
+    insert_query = insert_query.on_conflict_do_update(
         index_elements=[holes.c.pid],
         set_={
-            "like_count": update_deleted_query.excluded.like_count,
-            "reply_count": update_deleted_query.excluded.reply_count,
+            "like_count": insert_query.excluded.like_count,
+            "reply_count": insert_query.excluded.reply_count,
         },
     )
     all_values = []
     for page in range(1, settings.scan_page + 1):
         values = await fetch_page(page)
 
-        await database.execute_many(update_deleted_query, values)
+        await database.execute_many(insert_query, values)
         all_values.extend(values)
+
+    # Fetch comments for holes with more than 10 replies
+    for hole in all_values:
+        if hole["reply_count"] >= 10:
+            try:
+                fetched_reply_count = (
+                    await database.fetch_one(
+                        select(func.count())
+                        .select_from(comments)
+                        .where(comments.c.pid == hole["pid"])
+                    )
+                )[0]
+                if (
+                    fetched_reply_count is None
+                    or hole["reply_count"] - fetched_reply_count > 10
+                ):
+                    await database.execute_many(
+                        insert(comments).on_conflict_do_nothing(
+                            index_elements=[comments.c.cid]
+                        ),
+                        await fetch_comments(hole["pid"]),
+                    )
+            except Exception as e:
+                logger.error("Fail to fetch replies from {}: {}", hole.get("pid"), e)
 
     # Scan all_values to find discontinuous hole pids which means deletion
     previous_pid = all_values[0]["pid"]

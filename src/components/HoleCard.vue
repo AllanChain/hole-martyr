@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Hole } from '../types'
 import { formatTime } from '../utils'
+import HoleComment from './HoleComment.vue'
 
 defineProps<{
   hole: Hole
@@ -46,4 +47,5 @@ defineProps<{
       >Image</a>
     </div>
   </div>
+  <HoleComment :pid="hole.pid" />
 </template>
