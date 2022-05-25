@@ -6,7 +6,7 @@ class MessageAnnouncer:
         self.listeners: list[Queue] = []
 
     def listen(self):
-        self.listeners.append(Queue(maxsize=3))
+        self.listeners.append(Queue(maxsize=10))
         return self.listeners[-1]
 
     def announce(self, msg):
