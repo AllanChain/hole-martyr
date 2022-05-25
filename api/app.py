@@ -31,6 +31,7 @@ app.add_middleware(
 )
 
 metadata.create_all(engine)
+logger.remove()
 logger.add(
     sys.stderr,
     colorize=True,
