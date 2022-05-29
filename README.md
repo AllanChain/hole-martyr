@@ -28,6 +28,8 @@ The key difference between this program and previous PKU Hole crawlers:
 
 Not all deleted posts are important. The expected value of the deleted posts becomes higher only when something big is happening. If that's the case, usually keeping the main post itself is sufficient.
 
+Also, it's actually OK if you spin up the server a bit late. People tends to re-post deleted content quite often, if it's really a big deal.
+
 ## Usage Instruction
 
 Since it's only made for personal use, no production setup is required.
