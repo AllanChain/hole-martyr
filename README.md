@@ -8,6 +8,14 @@ This license of this program is based on 3-Clause BSD License, but with an addit
 
 4. The usage is limited. You can only use it personally and cannot deploy it to a server which is publicly available. You cannot advocate this program in any social media which the organization making deletion in PKUHole is in control of. You cannot post the contents it obtains publicly.
 
+## Why *Martyr*
+
+From Merriam-Webster dictionary, _martyr_ means:
+
+> A person who sacrifices something of great value and especially life itself for the sake of principle.
+
+In cyberspace, the account itself is the life. Users who post sensitive contents at the risk of losing their accounts can indeed be called martyrs in cyberspace.
+
 ## How It works
 
 This program **does not aim** to find every martyr. Instead, the aim is to watch and find martyrs at a specific time range (i.e. several minutes to an hour), usually when something big is happening.
