@@ -118,12 +118,17 @@ async def store_pages():
 
     # Scan all_values to find discontinuous hole pids which means deletion
     previous_pid = all_values[0]["pid"]
-    deleted_pids = []
+    previous_created_at = all_values[0]["created_at"]
+    deleted_holes: list[tuple[int, int]] = []  # (pid, guessed_created_at)
     for hole in all_values:
         current_pid = hole["pid"]
         if previous_pid - current_pid > 1:
-            deleted_pids.extend(range(current_pid + 1, previous_pid))
+            deleted_holes.extend(
+                (pid, previous_created_at)
+                for pid in range(current_pid + 1, previous_pid)
+            )
         previous_pid = current_pid
+        previous_created_at = hole["created_at"]
 
     # Update deleted_at field of deleted_pids if they haven't been marked
     deleted_at = int(time.time())
@@ -133,7 +138,10 @@ async def store_pages():
             set_={"deleted_at": deleted_at},
             where=holes_table.c.deleted_at == None,
         ),
-        [{"pid": pid, "deleted_at": deleted_at} for pid in deleted_pids],
+        [
+            {"pid": pid, "created_at": guessed_created_at, "deleted_at": deleted_at}
+            for pid, guessed_created_at in deleted_holes
+        ],
     )
 
     newly_deleted = await database.fetch_all(
