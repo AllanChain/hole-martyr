@@ -13,10 +13,11 @@ from loguru import logger
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
-from .database import comments, database, engine, holes, metadata
+from .database import comments_table, database, engine, holes_table, metadata
+from .dynamic_settings import (DynamicSettings, dynamic_settings,
+                               load_settings, save_settings)
 from .fetcher import store_pages
 from .message import MessageAnnouncer
-from .settings import settings
 
 app = FastAPI()
 announcer = MessageAnnouncer()
@@ -40,12 +41,13 @@ logger.add(
 )
 
 
-schedule_next = time.time() + settings.initial_delay
+schedule_next = time.time() + dynamic_settings.initial_delay
 
 
 @app.on_event("startup")
 async def startup():
     await database.connect()
+    await load_settings()
     logger.info("App started")
 
 
@@ -58,8 +60,8 @@ async def shutdown():
 async def bg_task() -> None:
     async def loop():
         global schedule_next
-        await asyncio.sleep(settings.initial_delay)
-        interval = settings.initial_interval
+        await asyncio.sleep(dynamic_settings.initial_delay)
+        interval = dynamic_settings.initial_interval
         while True:
             announcer.announce({"event": "scanstart"})
             try:
@@ -86,8 +88,8 @@ async def bg_task() -> None:
                     uncaught_deletion += 1
                 announcer.announce({"event": "deletion", "data": {"hole": hole}})
 
-            upper_gap = settings.max_interval - interval
-            lower_gap = interval - settings.min_interval
+            upper_gap = dynamic_settings.max_interval - interval
+            lower_gap = interval - dynamic_settings.min_interval
             if uncaught_deletion or len(newly_deleted) > 3:
                 interval -= random.uniform(lower_gap / 5, lower_gap / 4)
             else:
@@ -137,9 +139,9 @@ async def next_scan():
 @app.get("/recent-deletions")
 async def recent_deletions():
     deletions = await database.fetch_all(
-        holes.select()
-        .where(holes.c.deleted_at != None)
-        .order_by(holes.c.pid.desc())
+        holes_table.select()
+        .where(holes_table.c.deleted_at != None)
+        .order_by(holes_table.c.pid.desc())
         .limit(10)
     )
     return [dict(d) for d in deletions]
@@ -147,8 +149,22 @@ async def recent_deletions():
 
 @app.get("/hole/{pid}/comments")
 async def hole_comments(pid: int):
-    replies = await database.fetch_all(comments.select().where(comments.c.pid == pid))
+    replies = await database.fetch_all(
+        comments_table.select().where(comments_table.c.pid == pid)
+    )
     return [dict(c) for c in replies]
+
+
+@app.get("/settings")
+async def get_settings():
+    return dynamic_settings.dict()
+
+@app.patch("/settings")
+async def patch_settings(new_settings: DynamicSettings):
+    for k, v in new_settings.dict().items():
+        dynamic_settings[k] = v
+    await save_settings()
+    return dynamic_settings.dict()
 
 
 if os.path.exists("dist"):

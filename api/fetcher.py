@@ -7,7 +7,8 @@ from loguru import logger
 from sqlalchemy import func, select
 from sqlalchemy.dialects.sqlite import insert
 
-from .database import comments, database, holes
+from .database import comments_table, database, holes_table
+from .dynamic_settings import dynamic_settings
 from .settings import settings
 
 API_URL = "https://pkuhelper.pku.edu.cn/services/pkuhole/api.php"
@@ -76,16 +77,16 @@ async def fetch_comments(pid: int):
 
 
 async def store_pages():
-    insert_query = insert(holes)
+    insert_query = insert(holes_table)
     insert_query = insert_query.on_conflict_do_update(
-        index_elements=[holes.c.pid],
+        index_elements=[holes_table.c.pid],
         set_={
             "like_count": insert_query.excluded.like_count,
             "reply_count": insert_query.excluded.reply_count,
         },
     )
     all_values = []
-    for page in range(1, settings.scan_page + 1):
+    for page in range(1, dynamic_settings.scan_page + 1):
         values = await fetch_page(page)
 
         await database.execute_many(insert_query, values)
@@ -98,8 +99,8 @@ async def store_pages():
                 fetched_reply_count = (
                     await database.fetch_one(
                         select(func.count())
-                        .select_from(comments)
-                        .where(comments.c.pid == hole["pid"])
+                        .select_from(comments_table)
+                        .where(comments_table.c.pid == hole["pid"])
                     )
                 )[0]
                 if (
@@ -107,8 +108,8 @@ async def store_pages():
                     or hole["reply_count"] - fetched_reply_count > 10
                 ):
                     await database.execute_many(
-                        insert(comments).on_conflict_do_nothing(
-                            index_elements=[comments.c.cid]
+                        insert(comments_table).on_conflict_do_nothing(
+                            index_elements=[comments_table.c.cid]
                         ),
                         await fetch_comments(hole["pid"]),
                     )
@@ -127,16 +128,16 @@ async def store_pages():
     # Update deleted_at field of deleted_pids if they haven't been marked
     deleted_at = int(time.time())
     await database.execute_many(
-        insert(holes).on_conflict_do_update(
-            index_elements=[holes.c.pid],
+        insert(holes_table).on_conflict_do_update(
+            index_elements=[holes_table.c.pid],
             set_={"deleted_at": deleted_at},
-            where=holes.c.deleted_at == None,
+            where=holes_table.c.deleted_at == None,
         ),
         [{"pid": pid, "deleted_at": deleted_at} for pid in deleted_pids],
     )
 
     newly_deleted = await database.fetch_all(
-        holes.select().where(holes.c.deleted_at == deleted_at)
+        holes_table.select().where(holes_table.c.deleted_at == deleted_at)
     )
     newly_deleted = [dict(h) for h in newly_deleted]
     return newly_deleted
