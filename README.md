@@ -64,4 +64,4 @@ pnpm serve
 
 You need to have the above package managers installed.
 
-The SQLite database is not suitable for a large amount of data. As a consequence, you should **delete the `data.db` regularly**.
+The SQLite database is not suitable for a large amount of data. As a consequence, you should **clear data regularly**.
