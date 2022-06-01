@@ -14,8 +14,12 @@ from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
 from .database import comments_table, database, engine, holes_table, metadata
-from .dynamic_settings import (DynamicSettings, dynamic_settings,
-                               load_settings, save_settings)
+from .dynamic_settings import (
+    DynamicSettings,
+    dynamic_settings,
+    load_settings,
+    save_settings,
+)
 from .fetcher import store_pages
 from .message import MessageAnnouncer
 
@@ -157,14 +161,24 @@ async def hole_comments(pid: int):
 
 @app.get("/settings")
 async def get_settings():
+    """Get current settings"""
     return dynamic_settings.dict()
+
 
 @app.patch("/settings")
 async def patch_settings(new_settings: DynamicSettings):
+    """Update settings"""
     for k, v in new_settings.dict().items():
         dynamic_settings[k] = v
     await save_settings()
     return dynamic_settings.dict()
+
+
+@app.post("/delete-all")
+async def delete_all_data():
+    """Delete all fetched data from the database"""
+    for table in (holes_table, comments_table):
+        await database.execute(table.delete())
 
 
 if os.path.exists("dist"):

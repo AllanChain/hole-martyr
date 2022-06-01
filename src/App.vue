@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import type { Hole } from './types'
 import HoleCard from './components/HoleCard.vue'
 import NextScan from './components/NextScan.vue'
+import ControlPanel from './components/ControlPanel.vue'
 
 const nextScanTime = ref<number>(0)
 
@@ -47,6 +48,7 @@ onBeforeUnmount(() => {
 
 <template>
   <NextScan :time="nextScanTime" />
+  <ControlPanel />
   <div>
     <HoleCard v-for="hole of capturedDeletions" :key="hole.pid" :hole="hole" />
   </div>
