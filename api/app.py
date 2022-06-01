@@ -75,7 +75,7 @@ async def bg_task() -> None:
                 await asyncio.sleep(1)
                 continue
             except asyncio.CancelledError:
-                pass
+                continue
             except:
                 import traceback
 
@@ -165,11 +165,11 @@ async def get_settings():
     return dynamic_settings.dict()
 
 
-@app.patch("/settings")
-async def patch_settings(new_settings: DynamicSettings):
+@app.put("/settings")
+async def put_settings(new_settings: DynamicSettings):
     """Update settings"""
     for k, v in new_settings.dict().items():
-        dynamic_settings[k] = v
+        setattr(dynamic_settings, k, v)
     await save_settings()
     return dynamic_settings.dict()
 

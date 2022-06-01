@@ -2,6 +2,7 @@
 import { onMounted, reactive } from 'vue'
 
 const currentSettings = reactive({})
+const changingSettings = reactive({})
 
 const deleteAllData = async () => {
   if (confirm('Are you sure you want to delete all data?')) {
@@ -14,13 +15,24 @@ const deleteAllData = async () => {
 
 const fetchCurrentSettings = async () => {
   const resp = await fetch(`${import.meta.env.VITE_API_ROOT}settings`)
-  Object.assign(currentSettings, await resp.json())
+  const settings = await resp.json()
+  Object.assign(currentSettings, settings)
+  Object.assign(changingSettings, settings)
 }
 const updateSettings = async () => {
-  await fetch(`${import.meta.env.VITE_API_ROOT}settings`, {
-    method: 'PATCH',
-    body: JSON.stringify(currentSettings),
+  const resp = await fetch(`${import.meta.env.VITE_API_ROOT}settings`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(changingSettings),
   })
+  const settings = await resp.json()
+  Object.assign(currentSettings, settings)
+  Object.assign(changingSettings, settings)
+}
+const resetChangingSettings = () => {
+  Object.assign(changingSettings, currentSettings)
 }
 
 onMounted(fetchCurrentSettings)
@@ -29,16 +41,18 @@ onMounted(fetchCurrentSettings)
 <template>
   <details>
     <summary>Control Panel</summary>
-    <div v-for="(_, key) of currentSettings" :key="key">
+    <div v-for="(_, key) of changingSettings" :key="key">
       <label>
         {{ key }}
         <input
-          v-model="currentSettings[key]"
+          v-model="changingSettings[key]"
           type="number"
-          @change="console.log"
         >
       </label>
     </div>
+    <button @click="resetChangingSettings">
+      Reset
+    </button>
     <button @click="updateSettings">
       Update Settings
     </button>
