@@ -123,6 +123,7 @@ async def sse(request: Request):
                 )
             logger.debug("Stream disconnected")
         except asyncio.CancelledError:
+            yield ServerSentEvent("", event="close")
             logger.debug("Stream cancelled")
 
     return EventSourceResponse(event_source())

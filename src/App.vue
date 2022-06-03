@@ -25,6 +25,9 @@ onMounted(() => {
   evtSource.addEventListener('fetcherror', (event) => {
     console.log(event.data)
   })
+  evtSource.addEventListener('close', (event) => {
+    console.log('close', event.data)
+  })
   window.addEventListener('beforeunload', () => {
     evtSource.close()
   })
