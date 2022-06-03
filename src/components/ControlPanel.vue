@@ -54,15 +54,24 @@ onMounted(fetchCurrentSettings)
         >
       </template>
     </div>
-    <button @click="resetChangingSettings">
+    <button
+      class="btn bg-yellow-500 hover:bg-yellow-600"
+      @click="resetChangingSettings"
+    >
       Reset
     </button>
-    <button @click="updateSettings">
+    <button
+      class="btn bg-green-500 hover:bg-green-600"
+      @click="updateSettings"
+    >
       Update Settings
     </button>
     <details class="bg-red-100 p-2 my-2 rounded-sm">
       <summary>Dangerous</summary>
-      <button @click="deleteAllData">
+      <button
+        class="btn bg-red-500 hover:bg-red-600 text-white"
+        @click="deleteAllData"
+      >
         Delete all data
       </button>
     </details>

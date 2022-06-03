@@ -12,6 +12,9 @@ export default defineConfig({
         presetUno(),
         presetIcons(),
       ],
+      shortcuts: {
+        btn: 'border-none py-1 px-2 rounded m-1',
+      },
     }),
   ],
 })
