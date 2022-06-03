@@ -21,6 +21,9 @@ class DynamicSettings(BaseModel):
     min_interval: int
     "Minimum interval between fetches"
 
+    page_interval: int
+    "Interval between page fetches"
+
     reply_count_threshold: int
     "Reply count threshold to fetch comments"
 
@@ -34,6 +37,7 @@ dynamic_settings = DynamicSettings(
     initial_interval=30,
     max_interval=300,
     min_interval=10,
+    page_interval=1,
     reply_count_threshold=10,
     increment_reply_count=10,
 )

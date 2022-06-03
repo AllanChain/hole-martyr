@@ -86,11 +86,14 @@ async def store_pages():
         },
     )
     all_values = []
-    for page in range(1, dynamic_settings.scan_page + 1):
+    # Storing to `pages_to_scan` to avoid settings change during fetching
+    pages_to_scan = dynamic_settings.scan_page
+    for page in range(1, pages_to_scan + 1):
         values = await fetch_page(page)
-
         await database.execute_many(insert_query, values)
         all_values.extend(values)
+        if page != pages_to_scan:
+            await asyncio.sleep(dynamic_settings.page_interval)
 
     # Fetch comments for holes with more than 10 replies
     for hole in all_values:
