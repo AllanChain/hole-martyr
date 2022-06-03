@@ -4,6 +4,8 @@ import type { Hole } from './types'
 import HoleCard from './components/HoleCard.vue'
 import NextScan from './components/NextScan.vue'
 import ControlPanel from './components/ControlPanel.vue'
+import ToastContainer from './components/ToastContainer.vue'
+import { addToast } from './composables/toasts'
 
 const nextScanTime = ref<number>(0)
 
@@ -24,6 +26,11 @@ onMounted(() => {
   })
   evtSource.addEventListener('fetcherror', (event) => {
     console.log(event.data)
+    addToast({
+      message: event.data.slice(0, 100),
+      timeout: 3000,
+      type: 'error',
+    })
   })
   evtSource.addEventListener('close', (event) => {
     console.log('close', event.data)
@@ -55,4 +62,5 @@ onBeforeUnmount(() => {
   <div>
     <HoleCard v-for="hole of capturedDeletions" :key="hole.pid" :hole="hole" />
   </div>
+  <ToastContainer />
 </template>

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue'
+import { addToast } from '../composables/toasts'
 
 const currentSettings = reactive({})
 const changingSettings = reactive({})
@@ -30,6 +31,12 @@ const updateSettings = async () => {
   const settings = await resp.json()
   Object.assign(currentSettings, settings)
   Object.assign(changingSettings, settings)
+
+  addToast({
+    message: 'Update settings successfully',
+    timeout: 3000,
+    type: 'success',
+  })
 }
 const resetChangingSettings = () => {
   Object.assign(changingSettings, currentSettings)
