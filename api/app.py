@@ -86,15 +86,12 @@ async def bg_task() -> None:
                 await asyncio.sleep(1)
                 continue
 
-            uncaught_deletion = 0
             for hole in newly_deleted:
-                if hole["text"] is None:
-                    uncaught_deletion += 1
                 announcer.announce({"event": "deletion", "data": {"hole": hole}})
 
             upper_gap = dynamic_settings.max_interval - interval
             lower_gap = interval - dynamic_settings.min_interval
-            if uncaught_deletion or len(newly_deleted) > 3:
+            if newly_deleted:
                 interval -= random.uniform(lower_gap / 5, lower_gap / 4)
             else:
                 interval += random.uniform(-lower_gap / 8, upper_gap / 6)
