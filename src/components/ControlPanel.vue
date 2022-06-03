@@ -41,7 +41,7 @@ onMounted(fetchCurrentSettings)
 <template>
   <details class="bg-gray-100 rounded-md p-2 max-w-md">
     <summary>Control Panel</summary>
-    <div class="grid grid-cols-2">
+    <div class="grid grid-cols-[2fr_1fr]">
       <template v-for="(_, key) of changingSettings" :key="key">
         <label :for="changingSettings[key]">
           {{ key }}
