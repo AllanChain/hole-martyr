@@ -16,11 +16,11 @@ defineProps<{
       </div>
       <div class="flex-1" />
       <div class="ml-2">
-        {{ hole.reply_count }}
+        {{ hole.reply_count ?? '?' }}
       </div>
       <div class="i-carbon-chat" />
       <div class="ml-2">
-        {{ hole.like_count }}
+        {{ hole.like_count ?? '?' }}
       </div>
       <div class="i-carbon-star" />
     </div>
@@ -29,7 +29,7 @@ defineProps<{
       <div v-if="hole.created_at && hole.deleted_at">
         <span class="text-gray-700">{{ formatTime(hole.created_at * 1000) }}</span>
         |
-        <span class="text-red-800">{{ hole.deleted_at - hole.created_at }}s</span>
+        <span class="text-red-800">&lt;{{ hole.deleted_at - hole.created_at }}s</span>
       </div>
     </div>
 

@@ -39,16 +39,20 @@ onMounted(fetchCurrentSettings)
 </script>
 
 <template>
-  <details>
+  <details class="bg-gray-100 rounded-md p-2 max-w-md">
     <summary>Control Panel</summary>
-    <div v-for="(_, key) of changingSettings" :key="key">
-      <label>
-        {{ key }}
+    <div class="grid grid-cols-2">
+      <template v-for="(_, key) of changingSettings" :key="key">
+        <label :for="changingSettings[key]">
+          {{ key }}
+        </label>
         <input
+          :id="changingSettings[key]"
           v-model="changingSettings[key]"
+          class="max-w-20"
           type="number"
         >
-      </label>
+      </template>
     </div>
     <button @click="resetChangingSettings">
       Reset
@@ -56,7 +60,7 @@ onMounted(fetchCurrentSettings)
     <button @click="updateSettings">
       Update Settings
     </button>
-    <details>
+    <details class="bg-red-100 p-2 my-2 rounded-sm">
       <summary>Dangerous</summary>
       <button @click="deleteAllData">
         Delete all data
