@@ -94,7 +94,7 @@ async def store_pages():
 
     # Fetch comments for holes with more than 10 replies
     for hole in all_values:
-        if hole["reply_count"] >= 10:
+        if hole["reply_count"] >= dynamic_settings.reply_count_threshold:
             try:
                 fetched_reply_count = (
                     await database.fetch_one(
@@ -105,7 +105,8 @@ async def store_pages():
                 )[0]
                 if (
                     fetched_reply_count is None
-                    or hole["reply_count"] - fetched_reply_count > 10
+                    or hole["reply_count"] - fetched_reply_count
+                    > dynamic_settings.increment_reply_count
                 ):
                     await database.execute_many(
                         insert(comments_table).on_conflict_do_nothing(

@@ -7,10 +7,25 @@ from .database import database, settings_table
 
 class DynamicSettings(BaseModel):
     scan_page: int
+    "Pages to scan"
+
     initial_delay: int
+    "Wait several seconds before first fetch"
+
     initial_interval: int
+    "Initial interval between fetches"
+
     max_interval: int
+    "Maximum interval between fetches"
+
     min_interval: int
+    "Minimum interval between fetches"
+
+    reply_count_threshold: int
+    "Reply count threshold to fetch comments"
+
+    increment_reply_count: int
+    "Fetch more comments if new reply count is greater than this value"
 
 
 dynamic_settings = DynamicSettings(
@@ -19,6 +34,8 @@ dynamic_settings = DynamicSettings(
     initial_interval=30,
     max_interval=300,
     min_interval=10,
+    reply_count_threshold=10,
+    increment_reply_count=10,
 )
 
 
