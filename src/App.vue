@@ -5,11 +5,11 @@ import HoleCard from './components/HoleCard.vue'
 import NextScan from './components/NextScan.vue'
 import ControlPanel from './components/ControlPanel.vue'
 import ToastContainer from './components/ToastContainer.vue'
-import { addToast } from './composables/toasts'
+import { addToast } from './stores/toasts'
 import LogContainer from './components/LogContainer.vue'
-import { addLog } from './composables/logs'
+import { addLog } from './stores/logs'
 import { formatTime } from './utils'
-import { hasPermission } from './composables/notification'
+import { hasPermission } from './stores/notification'
 
 const nextScanTime = ref<number>(0)
 

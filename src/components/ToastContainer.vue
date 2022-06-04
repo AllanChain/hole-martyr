@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { toasts } from '../composables/toasts'
+import { toasts } from '../stores/toasts'
 </script>
 
 <template>

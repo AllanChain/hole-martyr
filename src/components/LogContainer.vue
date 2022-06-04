@@ -1,5 +1,5 @@
 <script lang="ts" setup >
-import { logs } from '../composables/logs'
+import { logs } from '../stores/logs'
 </script>
 
 <template>

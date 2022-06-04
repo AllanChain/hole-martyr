@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue'
-import { addToast } from '../composables/toasts'
-import { hasPermission, requestPermission } from '../composables/notification'
+import { addToast } from '../stores/toasts'
+import { hasPermission, requestPermission } from '../stores/notification'
 
 const currentSettings = reactive({})
 const changingSettings = reactive({})
