@@ -13,7 +13,7 @@ export default defineConfig({
         presetIcons(),
       ],
       shortcuts: {
-        btn: 'border-none py-1 px-2 rounded m-1',
+        btn: 'border-none py-1 px-2 rounded m-1 disabled:bg-gray-200 disabled:hover:bg-gray-200',
       },
     }),
   ],

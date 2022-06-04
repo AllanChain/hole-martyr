@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, reactive } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 import { addToast } from '../stores/toasts'
 import { hasPermission, requestPermission } from '../stores/notification'
 
@@ -42,6 +42,9 @@ const updateSettings = async () => {
 const resetChangingSettings = () => {
   Object.assign(changingSettings, currentSettings)
 }
+const settingsChanged = computed(() => {
+  return JSON.stringify(changingSettings) !== JSON.stringify(currentSettings)
+})
 
 onMounted(fetchCurrentSettings)
 </script>
@@ -64,12 +67,14 @@ onMounted(fetchCurrentSettings)
     </div>
     <button
       class="btn bg-yellow-500 hover:bg-yellow-600"
+      :disabled="!settingsChanged"
       @click="resetChangingSettings"
     >
       Reset
     </button>
     <button
       class="btn bg-green-500 hover:bg-green-600"
+      :disabled="!settingsChanged"
       @click="updateSettings"
     >
       Update Settings
@@ -83,7 +88,7 @@ onMounted(fetchCurrentSettings)
         :disabled="hasPermission"
         @click="requestPermission"
       >
-        Request notification permission
+        Enable notification
       </button>
     </div>
     <details class="bg-red-100 p-2 my-2 rounded-sm">

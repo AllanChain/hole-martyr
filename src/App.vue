@@ -28,15 +28,15 @@ onMounted(() => {
     addLog(`Scan done. Next scan scheduled at ${formatTime(nextScanTime.value)}`)
   })
   evtSource.addEventListener('deletion', (event) => {
-    const hole = JSON.parse(event.data).hole
+    const hole: Hole = JSON.parse(event.data).hole
     capturedDeletions.value.unshift(hole)
     addLog(`Deletion captured: #${hole.pid}`)
     if (hasPermission) {
       const notification = new Notification(`#${hole.pid} deleted`, {
-        body: hole.text,
+        body: hole.text ?? (hole.image ? 'Image' : 'Content uncaught'),
         icon: 'https://pkuhelper.pku.edu.cn/hole/static/favicon/256.png',
       })
-      setTimeout(() => notification.close(), 3000)
+      setTimeout(() => notification.close(), 5000)
     }
   })
   evtSource.addEventListener('fetcherror', (event) => {
