@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue'
 import { addToast } from '../composables/toasts'
+import { hasPermission, requestPermission } from '../composables/notification'
 
 const currentSettings = reactive({})
 const changingSettings = reactive({})
@@ -73,6 +74,18 @@ onMounted(fetchCurrentSettings)
     >
       Update Settings
     </button>
+    <div>
+      <button
+        class="btn"
+        :class="{
+          'bg-green-500 hover:bg-green-600': !hasPermission,
+        }"
+        :disabled="hasPermission"
+        @click="requestPermission"
+      >
+        Request notification permission
+      </button>
+    </div>
     <details class="bg-red-100 p-2 my-2 rounded-sm">
       <summary>Dangerous</summary>
       <button

@@ -1,5 +1,5 @@
-import { format as formatDate } from 'light-date'
+import { format } from 'light-date'
 
-export const formatTime = (time: number) => formatDate(
-  new Date(time), '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}',
-)
+export const formatDate = (date: Date) => format(date, '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}')
+
+export const formatTime = (time: number) => formatDate(new Date(time))
