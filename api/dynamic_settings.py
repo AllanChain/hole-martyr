@@ -1,46 +1,50 @@
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.dialects.sqlite import insert
 
 from .database import database, settings_table
 
 
 class DynamicSettings(BaseModel):
-    scan_page: int
-    "Pages to scan"
+    scan_page: int = Field(
+        4,
+        description="Page to scan",
+    )
+    initial_delay: int = Field(
+        10,
+        description="Wait several seconds before first fetch",
+    )
+    initial_interval: int = Field(
+        30,
+        description="Initial interval between fetches",
+    )
+    max_interval: int = Field(
+        300,
+        description="Maximum interval between fetches",
+    )
+    min_interval: int = Field(
+        10,
+        description="Minimum interval between fetches",
+    )
+    page_interval: int = Field(
+        1,
+        description="Interval between page fetches",
+    )
+    reply_count_threshold: int = Field(
+        10,
+        description="Reply count threshold to fetch comments",
+    )
+    increment_reply_count: int = Field(
+        10,
+        description="Fetch more comments if new reply count is greater than this value",
+    )
+    grace_before_relaxation: int = Field(
+        5,
+        description="Number of loops without newly deleted posts before relaxing the interval",
+    )
 
-    initial_delay: int
-    "Wait several seconds before first fetch"
 
-    initial_interval: int
-    "Initial interval between fetches"
-
-    max_interval: int
-    "Maximum interval between fetches"
-
-    min_interval: int
-    "Minimum interval between fetches"
-
-    page_interval: int
-    "Interval between page fetches"
-
-    reply_count_threshold: int
-    "Reply count threshold to fetch comments"
-
-    increment_reply_count: int
-    "Fetch more comments if new reply count is greater than this value"
-
-
-dynamic_settings = DynamicSettings(
-    scan_page=4,
-    initial_delay=10,
-    initial_interval=30,
-    max_interval=300,
-    min_interval=10,
-    page_interval=1,
-    reply_count_threshold=10,
-    increment_reply_count=10,
-)
+dynamic_settings = DynamicSettings()
 
 
 async def load_settings():

@@ -64,8 +64,12 @@ async def shutdown():
 async def bg_task() -> None:
     async def loop():
         global schedule_next
+        
         await asyncio.sleep(dynamic_settings.initial_delay)
         interval = dynamic_settings.initial_interval
+        
+        no_new_deleted_loops = 0
+        
         while True:
             announcer.announce({"event": "scanstart"})
             try:
@@ -89,12 +93,18 @@ async def bg_task() -> None:
             for hole in newly_deleted:
                 announcer.announce({"event": "deletion", "data": {"hole": hole}})
 
+            if newly_deleted:
+                no_new_deleted_loops = 0
+            else:
+                no_new_deleted_loops += 1
+
             upper_gap = dynamic_settings.max_interval - interval
             lower_gap = interval - dynamic_settings.min_interval
-            if newly_deleted:
+            
+            if no_new_deleted_loops < 3:
                 interval -= random.uniform(lower_gap / 5, lower_gap / 4)
             else:
-                interval += random.uniform(-lower_gap / 8, upper_gap / 6)
+                interval += random.uniform(0, upper_gap / 6)
 
             announcer.announce(
                 {"event": "scandone", "data": {"next": time.time() + interval}}
