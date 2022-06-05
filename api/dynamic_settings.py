@@ -51,7 +51,7 @@ async def load_settings():
     stored_settings = await database.fetch_all(settings_table.select())
     logger.info("Loaded dynamic settings: {}", stored_settings)
     for key, value in stored_settings:
-        if key not in dynamic_settings.__fields_set__:
+        if key not in dynamic_settings.__fields__:
             continue
         setattr(dynamic_settings, key, value)
 

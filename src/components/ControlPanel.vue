@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-import { computed, onMounted, reactive } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { addToast } from '../stores/toasts'
 import { hasPermission, requestPermission } from '../stores/notification'
+import type { PropertySchema } from '../types'
 
 const currentSettings = reactive({})
 const changingSettings = reactive({})
+const settingsSchema = ref<Record<string, PropertySchema>>({})
 
 const deleteAllData = async () => {
   if (confirm('Are you sure you want to delete all data?')) {
@@ -17,7 +19,8 @@ const deleteAllData = async () => {
 
 const fetchCurrentSettings = async () => {
   const resp = await fetch(`${import.meta.env.VITE_API_ROOT}settings`)
-  const settings = await resp.json()
+  const { schema, settings } = await resp.json()
+  settingsSchema.value = schema
   Object.assign(currentSettings, settings)
   Object.assign(changingSettings, settings)
 }
@@ -54,8 +57,11 @@ onMounted(fetchCurrentSettings)
     <summary>Control Panel</summary>
     <div class="grid grid-cols-[2fr_1fr]">
       <template v-for="(_, key) of changingSettings" :key="key">
-        <label :for="changingSettings[key]">
-          {{ key }}
+        <label
+          :for="changingSettings[key]"
+          :title="settingsSchema[key].description"
+        >
+          {{ settingsSchema[key].title }}
         </label>
         <input
           :id="changingSettings[key]"

@@ -14,3 +14,10 @@ export interface HoleComment {
   text: string
   created_at: number
 }
+
+export interface PropertySchema {
+  title: string
+  description: string
+  type: 'integer'
+  default: number
+}

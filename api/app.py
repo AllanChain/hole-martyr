@@ -170,7 +170,10 @@ async def hole_comments(pid: int):
 @app.get("/settings")
 async def get_settings():
     """Get current settings"""
-    return dynamic_settings.dict()
+    return {
+        'schema': dynamic_settings.schema()['properties'],
+        'settings': dynamic_settings.dict()
+    }
 
 
 @app.put("/settings")
