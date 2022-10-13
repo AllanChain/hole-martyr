@@ -33,7 +33,7 @@ defineProps<{
       </div>
     </div>
 
-    <p v-if="hole.text || hole.image" class="break-words">
+    <p v-if="hole.text || hole.image" class="break-words" style="white-space: pre-wrap">
       {{ hole.text }}
     </p>
     <p v-else>
