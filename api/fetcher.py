@@ -107,7 +107,7 @@ async def store_pages():
                     )
                 )[0]
                 if (
-                    fetched_reply_count is None
+                    fetched_reply_count == 0
                     or hole["reply_count"] - fetched_reply_count
                     > dynamic_settings.increment_reply_count
                 ):
